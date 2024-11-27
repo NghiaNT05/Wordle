@@ -34,9 +34,9 @@
             // 
             // btnStart
             // 
-            btnStart.Location = new Point(348, 90);
+            btnStart.Location = new Point(161, 55);
             btnStart.Name = "btnStart";
-            btnStart.Size = new Size(94, 29);
+            btnStart.Size = new Size(94, 68);
             btnStart.TabIndex = 0;
             btnStart.Text = "Listen";
             btnStart.UseVisualStyleBackColor = true;
@@ -44,19 +44,19 @@
             // 
             // txtLog
             // 
-            txtLog.Location = new Point(204, 164);
+            txtLog.Location = new Point(25, 166);
             txtLog.Multiline = true;
             txtLog.Name = "txtLog";
             txtLog.ReadOnly = true;
             txtLog.ScrollBars = ScrollBars.Vertical;
-            txtLog.Size = new Size(393, 161);
+            txtLog.Size = new Size(393, 252);
             txtLog.TabIndex = 1;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(441, 450);
             Controls.Add(txtLog);
             Controls.Add(btnStart);
             Name = "Form1";

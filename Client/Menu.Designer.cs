@@ -34,21 +34,21 @@
             // 
             // btnOpenServer
             // 
-            btnOpenServer.Location = new Point(213, 100);
+            btnOpenServer.Location = new Point(307, 92);
             btnOpenServer.Name = "btnOpenServer";
-            btnOpenServer.Size = new Size(94, 29);
+            btnOpenServer.Size = new Size(194, 60);
             btnOpenServer.TabIndex = 0;
-            btnOpenServer.Text = "open SV";
+            btnOpenServer.Text = "Open Server";
             btnOpenServer.UseVisualStyleBackColor = true;
             btnOpenServer.Click += btnOpenServer_Click_1;
             // 
             // btnOpenClient
             // 
-            btnOpenClient.Location = new Point(208, 198);
+            btnOpenClient.Location = new Point(307, 222);
             btnOpenClient.Name = "btnOpenClient";
-            btnOpenClient.Size = new Size(94, 29);
+            btnOpenClient.Size = new Size(194, 68);
             btnOpenClient.TabIndex = 1;
-            btnOpenClient.Text = "open Client";
+            btnOpenClient.Text = "Open Client";
             btnOpenClient.UseVisualStyleBackColor = true;
             btnOpenClient.Click += btnOpenClient_Click_1;
             // 
