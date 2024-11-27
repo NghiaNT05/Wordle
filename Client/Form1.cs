@@ -10,9 +10,9 @@ namespace Client
 {
     public partial class Form1 : Form
     {
-        private Socket clientSocket;
-        private Thread listenerThread;
-        private Register registerForm;
+        private Socket clientSocket = null!;
+        private Thread listenerThread = null!;
+        private Register registerForm = null!;
 
         public Form1()
         {
@@ -67,14 +67,24 @@ namespace Client
 
         private void ProcessServerMessage(string message)
         {
-            if (message == "Login Successfull")
+            if (message.StartsWith("login success"))
             {
-                Menu Room = new Menu();
-                Room.Show();
+                GameForm gameForm = new GameForm();
+                gameForm.Show();
+                this.Hide();
             }
-            else if (message == "register successfull")
+            else if (message.StartsWith("register success"))
             {
-                registerForm.Close();
+                MessageBox.Show("Đăng ký thành công! Vui lòng đăng nhập.");
+                registerForm?.Close();
+            }
+            else if (message.StartsWith("login failed"))
+            {
+                MessageBox.Show("Đăng nhập thất bại. Vui lòng kiểm tra lại.");
+            }
+            else if (message.StartsWith("register failed"))
+            {
+                MessageBox.Show("Đăng ký thất bại. Vui lòng thử lại.");
             }
             else
             {
@@ -97,12 +107,22 @@ namespace Client
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (clientSocket == null || !clientSocket.Connected || string.IsNullOrEmpty(textBox1.Text) || string.IsNullOrEmpty(textBox2.Text))
+            if (clientSocket == null || !clientSocket.Connected)
             {
-                MessageBox.Show("Lỗi khi kết nối tới server vui lòng khởi động lại");
+                MessageBox.Show("Lỗi khi kết nối tới server. Vui lòng khởi động lại.");
+                return;
             }
+
+            if (string.IsNullOrEmpty(textBox1.Text) || string.IsNullOrEmpty(textBox2.Text))
+            {
+                MessageBox.Show("Vui lòng nhập đầy đủ thông tin đăng nhập.");
+                return;
+            }
+
             string username = textBox1.Text;
             string password = HashPassword(textBox2.Text);
+
+            // Gửi yêu cầu đăng nhập tới server
             string message = $"login {username} {password}";
             Send(message);
 
@@ -134,7 +154,14 @@ namespace Client
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            conection();
+            try
+            {
+                conection();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể kết nối đến server: {ex.Message}");
+            }
 
         }
     }

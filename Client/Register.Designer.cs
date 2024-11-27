@@ -43,91 +43,97 @@
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(287, 63);
+            textBox1.Location = new Point(328, 84);
+            textBox1.Margin = new Padding(3, 4, 3, 4);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(153, 23);
+            textBox1.Size = new Size(174, 27);
             textBox1.TabIndex = 0;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(144, 71);
+            label1.Location = new Point(165, 95);
             label1.Name = "label1";
-            label1.Size = new Size(87, 15);
+            label1.Size = new Size(110, 20);
             label1.TabIndex = 1;
             label1.Text = "Tên đăng Nhập";
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(144, 132);
+            label2.Location = new Point(165, 176);
             label2.Name = "label2";
-            label2.Size = new Size(58, 15);
+            label2.Size = new Size(72, 20);
             label2.TabIndex = 3;
             label2.Text = "Mật Khẩu";
             // 
             // textBox2
             // 
-            textBox2.Location = new Point(287, 124);
+            textBox2.Location = new Point(328, 165);
+            textBox2.Margin = new Padding(3, 4, 3, 4);
             textBox2.Name = "textBox2";
-            textBox2.Size = new Size(153, 23);
+            textBox2.Size = new Size(174, 27);
             textBox2.TabIndex = 2;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(144, 191);
+            label3.Location = new Point(165, 255);
             label3.Name = "label3";
-            label3.Size = new Size(36, 15);
+            label3.Size = new Size(46, 20);
             label3.TabIndex = 5;
             label3.Text = "Email";
             // 
             // textBox3
             // 
-            textBox3.Location = new Point(287, 183);
+            textBox3.Location = new Point(328, 244);
+            textBox3.Margin = new Padding(3, 4, 3, 4);
             textBox3.Name = "textBox3";
-            textBox3.Size = new Size(153, 23);
+            textBox3.Size = new Size(174, 27);
             textBox3.TabIndex = 4;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(144, 257);
+            label4.Location = new Point(165, 343);
             label4.Name = "label4";
-            label4.Size = new Size(79, 15);
+            label4.Size = new Size(102, 20);
             label4.TabIndex = 7;
             label4.Text = "Số Điện Thoại";
             // 
             // textBox4
             // 
-            textBox4.Location = new Point(287, 249);
+            textBox4.Location = new Point(328, 336);
+            textBox4.Margin = new Padding(3, 4, 3, 4);
             textBox4.Name = "textBox4";
-            textBox4.Size = new Size(153, 23);
+            textBox4.Size = new Size(174, 27);
             textBox4.TabIndex = 6;
             // 
             // comboBox1
             // 
             comboBox1.FormattingEnabled = true;
             comboBox1.Items.AddRange(new object[] { "Nam", "Nữ" });
-            comboBox1.Location = new Point(287, 308);
+            comboBox1.Location = new Point(328, 411);
+            comboBox1.Margin = new Padding(3, 4, 3, 4);
             comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(153, 23);
+            comboBox1.Size = new Size(174, 28);
             comboBox1.TabIndex = 8;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(144, 316);
+            label5.Location = new Point(165, 421);
             label5.Name = "label5";
-            label5.Size = new Size(54, 15);
+            label5.Size = new Size(68, 20);
             label5.TabIndex = 9;
             label5.Text = "Giới Tính";
             // 
             // button1
             // 
-            button1.Location = new Point(376, 371);
+            button1.Location = new Point(346, 492);
+            button1.Margin = new Padding(3, 4, 3, 4);
             button1.Name = "button1";
-            button1.Size = new Size(114, 45);
+            button1.Size = new Size(130, 60);
             button1.TabIndex = 10;
             button1.Text = "Đăng Ký";
             button1.UseVisualStyleBackColor = true;
@@ -135,9 +141,9 @@
             // 
             // Register
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(914, 600);
             Controls.Add(button1);
             Controls.Add(label5);
             Controls.Add(comboBox1);
@@ -149,6 +155,7 @@
             Controls.Add(textBox2);
             Controls.Add(label1);
             Controls.Add(textBox1);
+            Margin = new Padding(3, 4, 3, 4);
             Name = "Register";
             Text = "Register";
             Load += Register_Load;

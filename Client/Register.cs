@@ -41,21 +41,44 @@ namespace Client
 
         }
 
+        private void Send(string message)
+        {
+            if (clientSocket != null && clientSocket.Connected)
+            {
+                byte[] data = Encoding.ASCII.GetBytes(message);
+                clientSocket.Send(data);
+            }
+            else
+            {
+                MessageBox.Show("Client is not connected to the server.");
+            }
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (clientSocket == null || !clientSocket.Connected || string.IsNullOrEmpty(textBox1.Text) || string.IsNullOrEmpty(textBox2.Text))
+            if (clientSocket == null || !clientSocket.Connected)
             {
-                MessageBox.Show("Lỗi khi kết nối tới server vui lòng khởi động lại hoặc điền đầy đủ tho");
+                MessageBox.Show("Lỗi khi kết nối tới server. Vui lòng khởi động lại.");
+                return;
             }
+
+            if (string.IsNullOrEmpty(textBox1.Text) || string.IsNullOrEmpty(textBox2.Text) ||
+                string.IsNullOrEmpty(textBox3.Text) || string.IsNullOrEmpty(textBox4.Text) ||
+                string.IsNullOrEmpty(comboBox1.Text))
+            {
+                MessageBox.Show("Vui lòng điền đầy đủ thông tin.");
+                return;
+            }
+
             string username = textBox1.Text;
             string password = HashPassword(textBox2.Text);
             string email = textBox3.Text;
-            string SDT = textBox4.Text;
-            string Gender = comboBox1.Text;
-            string message = $"register {username} {password} {email} {SDT} {Gender}";
-            byte[] data = Encoding.ASCII.GetBytes(message);
-            clientSocket.Send(data);
+            string phone = textBox4.Text;
+            string gender = comboBox1.Text;
+
+            // Gửi yêu cầu đăng ký tới server
+            string message = $"register {username} {password} {email} {phone} {gender}";
+            Send(message);
         }
     }
 }
