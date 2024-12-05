@@ -69,7 +69,8 @@ namespace Client
         {
             if (message.StartsWith("login success"))
             {
-                GameForm gameForm = new GameForm();
+                
+                GameForm gameForm = new GameForm(textBox1.Text);
                 gameForm.Show();
                 this.Hide();
             }
