@@ -31,8 +31,6 @@
             components = new System.ComponentModel.Container();
             panel1 = new Panel();
             listBox3 = new ListBox();
-            listBox2 = new ListBox();
-            listBox1 = new ListBox();
             button2 = new Button();
             label2 = new Label();
             label1 = new Label();
@@ -71,6 +69,7 @@
             groupBox1 = new GroupBox();
             comboBox1 = new ComboBox();
             button3 = new Button();
+            label3 = new Label();
             panel1.SuspendLayout();
             groupBox1.SuspendLayout();
             SuspendLayout();
@@ -78,9 +77,8 @@
             // panel1
             // 
             panel1.BackColor = SystemColors.Highlight;
+            panel1.Controls.Add(label3);
             panel1.Controls.Add(listBox3);
-            panel1.Controls.Add(listBox2);
-            panel1.Controls.Add(listBox1);
             panel1.Controls.Add(button2);
             panel1.Controls.Add(label2);
             panel1.Controls.Add(label1);
@@ -93,32 +91,14 @@
             // 
             listBox3.FormattingEnabled = true;
             listBox3.ItemHeight = 15;
-            listBox3.Location = new Point(3, 337);
+            listBox3.Location = new Point(3, 417);
             listBox3.Name = "listBox3";
             listBox3.Size = new Size(120, 94);
             listBox3.TabIndex = 6;
             // 
-            // listBox2
-            // 
-            listBox2.FormattingEnabled = true;
-            listBox2.ItemHeight = 15;
-            listBox2.Location = new Point(13, 192);
-            listBox2.Name = "listBox2";
-            listBox2.Size = new Size(108, 49);
-            listBox2.TabIndex = 5;
-            // 
-            // listBox1
-            // 
-            listBox1.FormattingEnabled = true;
-            listBox1.ItemHeight = 15;
-            listBox1.Location = new Point(13, 139);
-            listBox1.Name = "listBox1";
-            listBox1.Size = new Size(108, 34);
-            listBox1.TabIndex = 4;
-            // 
             // button2
             // 
-            button2.Location = new Point(13, 270);
+            button2.Location = new Point(0, 331);
             button2.Name = "button2";
             button2.Size = new Size(118, 49);
             button2.TabIndex = 3;
@@ -428,6 +408,16 @@
             button3.UseVisualStyleBackColor = true;
             button3.Click += button3_Click;
             // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI", 15F);
+            label3.ForeColor = SystemColors.ButtonHighlight;
+            label3.Location = new Point(13, 163);
+            label3.Name = "label3";
+            label3.Size = new Size(0, 28);
+            label3.TabIndex = 7;
+            // 
             // GameForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -485,8 +475,6 @@
         private Label label1;
         private Button button2;
         private Button button1;
-        private ListBox listBox2;
-        private ListBox listBox1;
         private System.Windows.Forms.Timer timer1;
         private TextBox W6L5;
         private TextBox W6L4;
@@ -522,5 +510,6 @@
         private ComboBox comboBox1;
         private ListBox listBox3;
         private Button button3;
+        private Label label3;
     }
 }

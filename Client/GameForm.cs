@@ -119,6 +119,7 @@ namespace Client
                 {
                     listBox3.Items.Add(player[i]);
                 }
+                label3.Text = "ROOM : " + comboBox1.SelectedItem.ToString();
 
             }
             else if (token[0] == "ready")
@@ -135,10 +136,12 @@ namespace Client
                 listBox3.Items.Clear();
                 groupBox1.Visible = true;
                 button2.Enabled = true;
+                label3.Text = "";
             }
             else if (token[0] == "leave")
             {
                 listBox3.Items.Add(token[1] + " da roi phong");
+                label3.Text = "";
             }
             else if (token[0] == "GameStarting")
             {
@@ -168,6 +171,7 @@ namespace Client
                 button2.Enabled = true;
                 groupBox1.Visible = true;
                 label2.Text = "Điểm : ";
+                label3.Text = "";
                 ResetAll();
                 string[] data = token[1].Split("-");
 
