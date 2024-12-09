@@ -7,7 +7,6 @@ using System.Threading;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
-
 namespace Server
 {
     public partial class Form1 : Form
@@ -17,6 +16,7 @@ namespace Server
         private int points = 0;
         private int countDown = 150;  // Thời gian đếm ngược
         private int WordIndex = 0;
+        private string correctcheck = "";
         Dictionary<int, List<Player>> rooms = new Dictionary<int, List<Player>>();  // Danh sách người chơi trong mỗi phòng
         Dictionary<int, List<KeyValuePair<string, int>>> res = new Dictionary<int, List<KeyValuePair<string, int>>>();  // Kết quả của các người chơi trong phòng
         Dictionary<int, string> Wordstring = new Dictionary<int, string>();  // Các từ đã được chọn trong từng phòng
@@ -184,9 +184,16 @@ namespace Server
                 string message = CheckAnswer(guessedWord, roomid, playername, point, attemp);
                 if (attemp == "5" || message.Split(" ")[1] == "22222" )
                 {
+
                     player.currentWord++;
                 }
-                return message;
+                if (attemp == "5" && message.Split(" ")[1] != "22222")
+                {
+                    
+                    return "niceTry" + " " + message + " " + correctcheck;
+                }
+
+                    return message;
             }
             else if(command == "ready")
             {
@@ -204,6 +211,14 @@ namespace Server
                 string playerPoints = parts[2];
                 string roomid = parts[3];
               return  HandleEndGame(playerName, playerPoints, roomid);
+            }
+            else if (command == "leave")
+            {
+                string roomid =parts[1];
+                string playerName = parts[2];
+                int roomId = int.Parse(roomid);
+                return HandleLeave(roomId, playerName);
+
             }
 
             return "invalid command";
@@ -264,23 +279,31 @@ namespace Server
                 }
             
         }
+      
         private string CheckAnswer(string guessedWord, string roomid, string playername, string point, string attemp)
         {
             int points = int.Parse(point);
              wordinroom = Wordstring[Int32.Parse(roomid)].Split("\n");
             
-            string correctWord = wordinroom[points].ToUpper();
+            correctcheck = wordinroom[points].ToUpper();
             answerCode = "";
 
             for (int i = 0; i < 5; i++)
             {
-                if (guessedWord[i] == correctWord[i])
+                if (guessedWord[i] == correctcheck[i])
                 {
                     answerCode += '2';  // Correct letter in correct position
                 }
-                else if (correctWord.Contains(guessedWord[i]))
+                else if (correctcheck.Contains(guessedWord[i]))
                 {
-                    answerCode += '1';  // Correct letter, wrong position
+                    if (checkreword(correctcheck, guessedWord[i]) >= checkreword(guessedWord, guessedWord[i])){
+                        answerCode += '1';
+                    }
+                    else
+                    {
+                        answerCode += '0';
+                    }
+
                 }
                 else
                 {
@@ -290,6 +313,18 @@ namespace Server
 
             
             return  "answer" + " " +answerCode;
+        }
+        private int checkreword(string word, char gess)
+        {
+            int tmp = 0;
+            for (int i = 0; i < word.Length; i++)
+            {
+                if (word[i] == gess)
+                {
+                    tmp++;
+                }
+            }
+            return tmp;
         }
         private string JoinRoom(string id, string playerName, TcpClient client)
         {
@@ -377,6 +412,37 @@ namespace Server
             {
                 return;
             }
+        }
+        private string HandleLeave(int roomid, string name)
+        {
+            if (rooms.ContainsKey(roomid))
+            {
+                Player player = rooms[roomid].FirstOrDefault(p => p.Name == name);
+                if (player != null)
+                {
+                    rooms[roomid].Remove(player);
+                    
+                    if (rooms[roomid].Count == 0)
+                    {
+                        rooms.Remove(roomid);
+                        roomGameStatus.Remove(roomid);
+                        res.Remove(roomid);
+                        Wordstring.Remove(roomid);
+                    }
+                    SendMessageToRoom(roomid, "leave" + " " + name);
+                    return "leaveSuccess" ;
+                }
+                else
+                {
+                    return "leaveFailed";
+                }
+
+            }
+            else
+            {
+                return "leaveFailed";
+            }
+
         }
         private string HandleEndGame ( string playerName, string playerPoints, string roomid)
         {

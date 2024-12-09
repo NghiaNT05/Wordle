@@ -70,6 +70,7 @@
             W1L1 = new TextBox();
             groupBox1 = new GroupBox();
             comboBox1 = new ComboBox();
+            button3 = new Button();
             panel1.SuspendLayout();
             groupBox1.SuspendLayout();
             SuspendLayout();
@@ -417,11 +418,22 @@
             comboBox1.Size = new Size(121, 23);
             comboBox1.TabIndex = 3;
             // 
+            // button3
+            // 
+            button3.Location = new Point(687, 12);
+            button3.Name = "button3";
+            button3.Size = new Size(101, 46);
+            button3.TabIndex = 61;
+            button3.Text = "Thoat";
+            button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
+            // 
             // GameForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 651);
+            Controls.Add(button3);
             Controls.Add(groupBox1);
             Controls.Add(W6L5);
             Controls.Add(W6L4);
@@ -509,5 +521,6 @@
         private GroupBox groupBox1;
         private ComboBox comboBox1;
         private ListBox listBox3;
+        private Button button3;
     }
 }

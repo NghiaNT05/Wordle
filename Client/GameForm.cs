@@ -103,8 +103,14 @@ namespace Client
             if (token[0] == "answer")
             {
                 answerCode = token[1];
+
             }
-           else if (token[0] == "joinsuccess")
+            else if (token[0] == "niceTry")
+            {
+                answerCode = token[2];
+                MessageBox.Show(token[3]);
+            }
+            else if (token[0] == "joinsuccess")
             {
                 listBox3.Items.Clear();
 
@@ -115,18 +121,29 @@ namespace Client
                 }
 
             }
-           else if (token[0] == "ready")
+            else if (token[0] == "ready")
             {
                 string[] player = token[1].Split(",");
                 for (int i = 0; i < player.Length; i++)
                 {
-                    listBox3.Items.Add(player[i]+ "đã sẵn sàng");
-                 }
+                    listBox3.Items.Add(player[i] + "đã sẵn sàng");
+                }
             }
-           else if (token[0] == "GameStarting")
+            else if (token[0] == "leaveSuccess")
+            {
+                MessageBox.Show("ban da roi phong");
+                listBox3.Items.Clear();
+                groupBox1.Visible = true;
+                button2.Enabled = true;
+            }
+            else if (token[0] == "leave")
+            {
+                listBox3.Items.Add(token[1] + " da roi phong");
+            }
+            else if (token[0] == "GameStarting")
             {
                 button2.Enabled = false;
-               this.KeyPreview = true;
+                this.KeyPreview = true;
                 gameProcess = true;
                 timer1.Start();
                 for (int i = 0; i < 6; i++)
@@ -139,34 +156,31 @@ namespace Client
 
 
             }
-           else if (token[0] == "roomplaying")
+            else if (token[0] == "roomplaying")
             {
-                MessageBox.Show("vui long doi ");
+                MessageBox.Show("phong dang choi vui long chon phong moi ");
                 listBox3.Items.Clear();
-                string[] player = token[1].Split(",");
-                for (int i = 0; i < player.Length; i++)
-                {
-                    listBox3.Items.Add(player[i] + " is playing");
-                }
-                button2.Visible = false;
+                groupBox1.Visible = true;
             }
             else if (token[0] == "EndGame")
             {
+                button2.Visible = true;
                 button2.Enabled = true;
                 groupBox1.Visible = true;
+                label2.Text = "Điểm : ";
                 ResetAll();
                 string[] data = token[1].Split("-");
-                
+
                 string chart = "";
 
-                for (int i = 0; i < data.Length -1 ; i++)
+                for (int i = 0; i < data.Length - 1; i++)
                 {
                     string[] player = data[i].Split(":");
 
                     // Kiểm tra nếu player có đủ 3 phần tử
                     if (player.Length == 3)
                     {
-                       chart +=  "player :  " +  player[0] + "  " + player[1] + ": " + player[2] + "\n";
+                        chart += "player :  " + player[0] + "  " + player[1] + ": " + player[2] + "\n";
                     }
                     else
                     {
@@ -179,10 +193,10 @@ namespace Client
             }
             else if (token[0] == "EndGamePlayer")
             {
-               
-                    MessageBox.Show("ban da hoan thanh vui long doi");
 
-                
+                MessageBox.Show("ban da hoan thanh vui long doi");
+
+
             }
         }
         private async Task Send(string message)
@@ -215,9 +229,9 @@ namespace Client
                 {
                     rows[rowIndex][letterIndex].Text = e.KeyCode.ToString();
                     letterIndex++;
-             
+
                 }
-              
+
             }
             //Nếu phím gõ vào là phím Enter
             else if (e.KeyCode == Keys.Enter && letterIndex == 4 && rows[rowIndex][4].Text != "")
@@ -227,7 +241,7 @@ namespace Client
                     string answer = "";
                     for (int i = 0; i < 5; i++)
                     {
-                        
+
                         if (i < rows[rowIndex].Length)
                         {
                             char answerC = Convert.ToChar(rows[rowIndex][i].Text[0]);
@@ -235,9 +249,9 @@ namespace Client
                         }
                     }
 
-                  
-                    await Send("check" + " " + answer+ " "+ comboBox1.SelectedItem.ToString()+ " " + name+" "+rowIndex.ToString());
-                    
+
+                    await Send("check" + " " + answer + " " + comboBox1.SelectedItem.ToString() + " " + name + " " + rowIndex.ToString());
+
                     await WaitForAnswerCode();
                 }
 
@@ -401,7 +415,7 @@ namespace Client
             W6L3.BackColor = Color.Black;
             W6L4.BackColor = Color.Black;
             W6L5.BackColor = Color.Black;
-          
+
             if (wordIndex == 5)
             {
                 wordIndex = 0;
@@ -488,8 +502,6 @@ namespace Client
                     rows[i][j].Enabled = false;
                 }
             }
-
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -502,8 +514,14 @@ namespace Client
 
         private void button2_Click(object sender, EventArgs e)
         {
-           
+
             string message = "ready" + " " + name + " " + comboBox1.SelectedItem.ToString();
+            Send(message);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string message = "leave" + " " + comboBox1.SelectedItem.ToString() + " " + name;
             Send(message);
         }
     }
