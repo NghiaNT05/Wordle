@@ -61,7 +61,6 @@ namespace Server
             {
                 words += ChoseWord() + "\n"; 
             }
-            MessageBox.Show(words);
 
             return words;
         }
@@ -279,41 +278,58 @@ namespace Server
                 }
             
         }
-      
-        private string CheckAnswer(string guessedWord, string roomid, string playername, string point, string attemp)
+
+        private string CheckAnswer(string guessedWord, string roomid, string playername, string point, string attempt)
         {
             int points = int.Parse(point);
-             wordinroom = Wordstring[Int32.Parse(roomid)].Split("\n");
-            
-            correctcheck = wordinroom[points].ToUpper();
-            answerCode = "";
 
+            string[] wordinroom = Wordstring[Int32.Parse(roomid)].Split("\n");
+
+            
+             correctcheck = wordinroom[points].ToUpper(); 
+            string answerCode = ""; 
+            bool[] targetUsed = new bool[correctcheck.Length]; 
             for (int i = 0; i < 5; i++)
             {
                 if (guessedWord[i] == correctcheck[i])
                 {
-                    answerCode += '2';  // Correct letter in correct position
-                }
-                else if (correctcheck.Contains(guessedWord[i]))
-                {
-                    if (checkreword(correctcheck, guessedWord[i]) >= checkreword(guessedWord, guessedWord[i])){
-                        answerCode += '1';
-                    }
-                    else
-                    {
-                        answerCode += '0';
-                    }
-
+                    answerCode += '2'; 
+                    targetUsed[i] = true;  
                 }
                 else
                 {
-                    answerCode += '0';  // Incorrect letter
+                    answerCode += '-';  
                 }
             }
 
-            
-            return  "answer" + " " +answerCode;
+            for (int i = 0; i < 5; i++)
+            {
+                if (answerCode[i] == '-') 
+                {
+                    for (int j = 0; j < 5; j++)
+                    {
+                        if (!targetUsed[j] && guessedWord[i] == correctcheck[j])
+                        {
+                            answerCode = answerCode.Substring(0, i) + '1' + answerCode.Substring(i + 1);  
+                            targetUsed[j] = true;  
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Finally, assign '0' for the incorrect letters (gray)
+            for (int i = 0; i < 5; i++)
+            {
+                if (answerCode[i] == '-')  // If the letter is still a placeholder (not green or yellow)
+                {
+                    answerCode = answerCode.Substring(0, i) + '0' + answerCode.Substring(i + 1);  // Incorrect letter (gray)
+                }
+            }
+
+            return "answer " + answerCode;  // Return the final answer code
         }
+
         private int checkreword(string word, char gess)
         {
             int tmp = 0;
@@ -329,7 +345,6 @@ namespace Server
         private string JoinRoom(string id, string playerName, TcpClient client)
         {
             int roomId = int.Parse(id);
-
            
             lock (roomsLock)
             {
@@ -344,7 +359,6 @@ namespace Server
                     return "roomplaying" + " " + mes;
 
                 }
-                // Kiểm tra nếu playerName đã tồn tại trong phòng
                 if (rooms.ContainsKey(roomId))
                 {
                     if (rooms[roomId].Any(p => p.Name == playerName))
@@ -353,18 +367,15 @@ namespace Server
                     }
                 }
 
-                // Nếu phòng chưa có thì tạo mới
                 if (!rooms.ContainsKey(roomId))
                 {
                     rooms[roomId] = new List<Player>();
                 }
 
-                // Nếu phòng chưa đầy thì thêm player vào phòng
                 if (rooms[roomId].Count < 4)  
                 {
-                    rooms[roomId].Add(new Player(playerName, client));  // Thêm player vào phòng
+                    rooms[roomId].Add(new Player(playerName, client)); 
 
-                    // Trả về danh sách player trong phòng
                     string playersInRoom = string.Join(",", rooms[roomId].Select(p => p.Name));
                     SendMessageToRoom(roomId, $"joinsuccess {playersInRoom} {roomId}");
                     return null;
@@ -448,10 +459,8 @@ namespace Server
         {
             if (Int32.TryParse(roomid, out int roomId))
             {
-                // Đảm bảo rằng thao tác với các tài nguyên dùng chung được đồng bộ
                 lock (roomsLock)
                 {
-                    // Kiểm tra nếu roomId tồn tại trong rooms
                     if (rooms.ContainsKey(roomId))
                     {
                         Player player = rooms[roomId].FirstOrDefault(p => p.Name == playerName);

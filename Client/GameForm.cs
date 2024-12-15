@@ -14,7 +14,7 @@ namespace Client
     {
         private Socket clientSocket = null!;
         private Thread listenerThread = null!;
-        private string name;
+        private string name = "";
         private string answerCode = null!;
         private int points = 0;
         private int countDown = 150;
@@ -36,7 +36,6 @@ namespace Client
             name = username;
         }
 
-        // Connect to server
         private void Connect()
         {
             try
@@ -85,6 +84,7 @@ namespace Client
                 catch (SocketException ex)
                 {
                     MessageBox.Show($"Ban da dang xuat");
+                    
                     break;
                 }
                 catch (Exception ex)
@@ -93,6 +93,7 @@ namespace Client
                     break;
                 }
             }
+            
         }
 
         // Process incoming server messages
@@ -153,7 +154,7 @@ namespace Client
                 {
                     for (int j = 0; j < 5; j++)
                     {
-                        rows[i][j].Enabled = true;
+                        rows[i][j].Enabled = false;
                     }
                 }
 
@@ -172,6 +173,7 @@ namespace Client
                 groupBox1.Visible = true;
                 label2.Text = "Điểm : ";
                 label3.Text = "";
+                points = 0;
                 ResetAll();
                 string[] data = token[1].Split("-");
 
@@ -181,7 +183,6 @@ namespace Client
                 {
                     string[] player = data[i].Split(":");
 
-                    // Kiểm tra nếu player có đủ 3 phần tử
                     if (player.Length == 3)
                     {
                         chart += "player :  " + player[0] + "  " + player[1] + ": " + player[2] + "\n";

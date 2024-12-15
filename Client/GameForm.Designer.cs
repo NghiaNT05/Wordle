@@ -30,6 +30,7 @@
         {
             components = new System.ComponentModel.Container();
             panel1 = new Panel();
+            label3 = new Label();
             listBox3 = new ListBox();
             button2 = new Button();
             label2 = new Label();
@@ -69,7 +70,6 @@
             groupBox1 = new GroupBox();
             comboBox1 = new ComboBox();
             button3 = new Button();
-            label3 = new Label();
             panel1.SuspendLayout();
             groupBox1.SuspendLayout();
             SuspendLayout();
@@ -86,6 +86,16 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(200, 581);
             panel1.TabIndex = 0;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI", 15F);
+            label3.ForeColor = SystemColors.ButtonHighlight;
+            label3.Location = new Point(13, 163);
+            label3.Name = "label3";
+            label3.Size = new Size(0, 28);
+            label3.TabIndex = 7;
             // 
             // listBox3
             // 
@@ -340,6 +350,7 @@
             // 
             // W1L5
             // 
+            W1L5.Enabled = false;
             W1L5.Font = new Font("Segoe UI", 20F);
             W1L5.Location = new Point(643, 96);
             W1L5.Name = "W1L5";
@@ -348,6 +359,7 @@
             // 
             // W1L4
             // 
+            W1L4.Enabled = false;
             W1L4.Font = new Font("Segoe UI", 20F);
             W1L4.Location = new Point(543, 96);
             W1L4.Name = "W1L4";
@@ -356,6 +368,7 @@
             // 
             // W1L3
             // 
+            W1L3.Enabled = false;
             W1L3.Font = new Font("Segoe UI", 20F);
             W1L3.Location = new Point(443, 96);
             W1L3.Name = "W1L3";
@@ -364,6 +377,7 @@
             // 
             // W1L2
             // 
+            W1L2.Enabled = false;
             W1L2.Font = new Font("Segoe UI", 20F);
             W1L2.Location = new Point(343, 96);
             W1L2.Name = "W1L2";
@@ -372,6 +386,7 @@
             // 
             // W1L1
             // 
+            W1L1.Enabled = false;
             W1L1.Font = new Font("Segoe UI", 20F);
             W1L1.Location = new Point(243, 96);
             W1L1.Name = "W1L1";
@@ -407,16 +422,6 @@
             button3.Text = "Thoat";
             button3.UseVisualStyleBackColor = true;
             button3.Click += button3_Click;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 15F);
-            label3.ForeColor = SystemColors.ButtonHighlight;
-            label3.Location = new Point(13, 163);
-            label3.Name = "label3";
-            label3.Size = new Size(0, 28);
-            label3.TabIndex = 7;
             // 
             // GameForm
             // 
