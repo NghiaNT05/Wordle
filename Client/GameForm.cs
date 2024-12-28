@@ -84,7 +84,7 @@ namespace Client
                 catch (SocketException ex)
                 {
                     MessageBox.Show($"Ban da dang xuat");
-                    
+
                     break;
                 }
                 catch (Exception ex)
@@ -93,7 +93,7 @@ namespace Client
                     break;
                 }
             }
-            
+
         }
 
         // Process incoming server messages
@@ -171,6 +171,7 @@ namespace Client
                 button2.Visible = true;
                 button2.Enabled = true;
                 groupBox1.Visible = true;
+                listBox3.Items.Clear();
                 label2.Text = "Điểm : ";
                 label3.Text = "";
                 points = 0;
@@ -185,7 +186,7 @@ namespace Client
 
                     if (player.Length == 3)
                     {
-                        chart += "player :  " + player[0] + "  " + player[1] + ": " + player[2] + "\n";
+                        chart += player[0] + "  " + player[1] + ": " + player[2] + "\n";
                     }
                     else
                     {
@@ -202,6 +203,11 @@ namespace Client
                 MessageBox.Show("ban da hoan thanh vui long doi");
 
 
+            }
+            else if (message.StartsWith("Chat"))
+            {
+                string[] tokenChat = message.Split("/");
+                listBox3.Items.Add("[" + tokenChat[2] + "] " + tokenChat[1]);
             }
         }
         private async Task Send(string message)
@@ -424,12 +430,16 @@ namespace Client
             if (wordIndex == 5)
             {
                 wordIndex = 0;
-                points = 0;
+               
                 gameProcess = false;
 
                 string room = comboBox1.SelectedItem.ToString();
 
                 Send("EndGame" + " " + name + " " + points.ToString() + " " + room);
+               
+                points = 0;
+            
+
             }
 
         }
@@ -527,6 +537,11 @@ namespace Client
         private void button3_Click(object sender, EventArgs e)
         {
             string message = "leave" + " " + comboBox1.SelectedItem.ToString() + " " + name;
+            Send(message);
+        }
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string message =  "Send" + "/" + textBox7.Text + "/" + comboBox1.SelectedItem.ToString() + "/" +  name ;
             Send(message);
         }
     }

@@ -167,37 +167,37 @@ namespace Server
             {
                 string id = parts[1];
                 string playerName = parts[3];
-                return JoinRoom(id, playerName,client);
+                return JoinRoom(id, playerName, client);
             }
             else if (command == "check")
             {
                 AppendLog("Nhận từ đoán ");
-                
+
 
                 string guessedWord = parts[1];
                 string roomid = parts[2];
                 string playername = parts[3];
                 string attemp = parts[4];
-                Player player = rooms[Int32.Parse( roomid)].FirstOrDefault(p => p.Name == playername);
+                Player player = rooms[Int32.Parse(roomid)].FirstOrDefault(p => p.Name == playername);
                 string point = player.currentWord.ToString();
                 string message = CheckAnswer(guessedWord, roomid, playername, point, attemp);
-                if (attemp == "5" || message.Split(" ")[1] == "22222" )
+                if (attemp == "5" || message.Split(" ")[1] == "22222")
                 {
 
                     player.currentWord++;
                 }
                 if (attemp == "5" && message.Split(" ")[1] != "22222")
                 {
-                    
+
                     return "niceTry" + " " + message + " " + correctcheck;
                 }
 
-                    return message;
+                return message;
             }
-            else if(command == "ready")
+            else if (command == "ready")
             {
-                
-                string roomid =parts[2];
+
+                string roomid = parts[2];
                 string playerName = parts[1];
 
                 ProcessReadyCommand(roomid, playerName);
@@ -209,14 +209,25 @@ namespace Server
                 string playerName = parts[1];
                 string playerPoints = parts[2];
                 string roomid = parts[3];
-              return  HandleEndGame(playerName, playerPoints, roomid);
+                return HandleEndGame(playerName, playerPoints, roomid);
             }
             else if (command == "leave")
             {
-                string roomid =parts[1];
+                string roomid = parts[1];
                 string playerName = parts[2];
                 int roomId = int.Parse(roomid);
                 return HandleLeave(roomId, playerName);
+
+            }
+            else if (request.StartsWith ("Send"))
+            {
+                string[] token = request.Split("/");
+                string message = "Chat" + "/"+ token[1] + "/" +  token[3];
+              
+                int roomid = Int32.Parse(token[2]);
+                
+                SendMessageToRoom(roomid,message);
+                return null;
 
             }
 
@@ -522,7 +533,6 @@ namespace Server
         {
             if (rooms.ContainsKey(roomId))
             {
-                // Lặp qua tất cả người chơi trong phòng và gửi tin nhắn
                 foreach (var player in rooms[roomId])
                 {
                     try
@@ -530,12 +540,10 @@ namespace Server
                         NetworkStream stream = player.Client.GetStream();
                         byte[] messageBytes = Encoding.UTF8.GetBytes(message);
 
-                        // Gửi tin nhắn tới client
                         await stream.WriteAsync(messageBytes, 0, messageBytes.Length);
                     }
                     catch (Exception ex)
                     {
-                        // Nếu có lỗi khi gửi tin nhắn, log lỗi
                         AppendLog($"Error sending message to {player.Name}: {ex.Message}");
                     }
                 }
