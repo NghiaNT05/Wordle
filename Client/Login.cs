@@ -140,7 +140,8 @@ namespace Client
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            registerForm = new Register(clientSocket);
+            registerForm = new Register();
+
             registerForm.Show();
 
         }

@@ -4,23 +4,42 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Security.Cryptography;
 
-
 namespace Client
 {
     public partial class Register : Form
     {
         private Socket clientSocket;
-        public Register(Socket Socket)
+
+        public Register()
         {
             InitializeComponent();
-            clientSocket = Socket;
+            InitializeSocket();
         }
+
+        private void InitializeSocket()
+        {
+            try
+            {
+                clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                clientSocket.Connect(IPAddress.Parse("127.0.0.1"), 8888);
+                Thread receiveThread = new Thread(new ThreadStart(ReceiveMessages));
+                receiveThread.IsBackground = true;
+                receiveThread.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể kết nối tới server: {ex.Message}");
+                clientSocket = null;
+            }
+        }
+
         private string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())
@@ -38,7 +57,7 @@ namespace Client
 
         private void Register_Load(object sender, EventArgs e)
         {
-
+            // You can add any code here that needs to execute when the form loads
         }
 
         private void Send(string message)
@@ -80,5 +99,47 @@ namespace Client
             string message = $"register {username} {password} {email} {phone} {gender}";
             Send(message);
         }
+
+        private void ProcessServerMessage(string message)
+        {
+            if (message.StartsWith("register success"))
+            {
+                MessageBox.Show("Đăng ký thành công!");
+                this.Invoke((MethodInvoker)delegate {
+                    this.Close();
+                });
+            }
+            else if (message.StartsWith("register failed"))
+            {
+                MessageBox.Show("Đăng ký thất bại, vui lòng thử lại.");
+            }
+            else
+            {
+                MessageBox.Show("Phản hồi không xác định: " + message);
+            }
+        }
+
+        private void ReceiveMessages()
+        {
+            byte[] buffer = new byte[1024 * 10];
+            while (clientSocket.Connected)
+            {
+                try
+                {
+                    int bytesReceived = clientSocket.Receive(buffer);
+                    if (bytesReceived > 0)
+                    {
+                        string message = Encoding.ASCII.GetString(buffer, 0, bytesReceived);
+                        this.Invoke(new Action(() => ProcessServerMessage(message)));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi kết nối tới server: " + ex.Message);
+                    break;
+                }
+            }
+        }
+
     }
 }
