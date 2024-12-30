@@ -157,7 +157,7 @@ namespace Client
                 {
                     for (int j = 0; j < 5; j++)
                     {
-                        rows[i][j].Enabled = false;
+                        rows[i][j].Enabled = true;
                     }
                 }
 
@@ -480,7 +480,7 @@ namespace Client
 
         private void GameForm_Load(object sender, EventArgs e)
         {
-            this.KeyPreview = false;
+            
 
 
             MessageBox.Show("Welcome to the game!");
@@ -537,7 +537,7 @@ namespace Client
                     rows[i][j].Text = "";
                     rows[i][j].ForeColor = Color.White;
                     rows[i][j].BackColor = Color.Black;
-                    rows[i][j].Enabled = false;
+                    rows[i][j].Enabled = true;
                 }
             }
         }
