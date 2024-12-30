@@ -29,10 +29,10 @@ namespace Server_Wordles
 
         private TcpListener listener = null!;
         private Thread listenerThread = null!;
-        private string connectionString = @"Server=localhost;Database=WordleDB;Uid=root;Pwd=1234;";
+        private string connectionString = @"Server=localhost;Database=WordleDB;Uid=root;Pwd=12345;";
         List<string> chosenWords = new List<string>();
         //File chứa list từ
-        string[] allWords = File.ReadAllText(@"D:\DA\Wordle\word.txt")
+        string[] allWords = File.ReadAllText(@"C:\Users\NghiaAo1\Downloads\DA\Wordle\word.txt")
         .Split("\n");
         Random rand = new Random();
         //Random 1 từ
