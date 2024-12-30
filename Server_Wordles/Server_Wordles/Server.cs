@@ -7,9 +7,10 @@ using System.Threading;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
-namespace Server
+using System.Runtime.InteropServices;
+namespace Server_Wordles
 {
-    public partial class Form1 : Form
+    public partial class Server : Form
     {
         private string answerCode = "";
         private string result = "";
@@ -26,19 +27,17 @@ namespace Server
         private object roomsLock = new object();
         string[] wordinroom;
 
-
-
-
-
         private TcpListener listener = null!;
         private Thread listenerThread = null!;
-        private string connectionString = @"Server=localhost;Database=WordleDB;Uid=root;Pwd=1234;";
+        private string connectionString = @"Server=localhost;Database=WordleDB;Uid=root;Pwd=Sql1124@;";
         List<string> chosenWords = new List<string>();
         //File chứa list từ
-        string[] allWords = File.ReadAllText(@"D:\DA\Wordle\Server\word.txt")
-      .Split("\n");
+        string[] allWords = File.ReadAllText(@"C:\DA\Wordle\word.txt")
+        .Split("\n");
         Random rand = new Random();
         //Random 1 từ
+        Dictionary<int, string> roomKeywords = new Dictionary<int, string>();
+
         public string ChoseWord()
         {
             string currentWord;
@@ -59,14 +58,13 @@ namespace Server
 
             for (int i = 0; i < 5; i++)
             {
-                words += ChoseWord() + "\n"; 
+                words += ChoseWord() + "\n";
             }
 
             return words;
         }
-        
 
-        public Form1()
+        public Server()
         {
             InitializeComponent();
             for (int i = 1; i <= 10; i++)
@@ -80,11 +78,20 @@ namespace Server
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            // Kiểm tra nếu máy chủ đã được khởi động
+            if (listener != null && listener.Server.IsBound)
+            {
+                AppendLog("Server is already running.");
+                return;
+            }
+
+            // Khởi động máy chủ
             listenerThread = new Thread(StartServer);
             listenerThread.IsBackground = true;
             listenerThread.Start();
             AppendLog("Server started. Listening for connections...");
         }
+
 
         private async void StartServer()
         {
@@ -97,7 +104,7 @@ namespace Server
                 {
                     TcpClient client = await listener.AcceptTcpClientAsync();
                     AppendLog("Client connected!");
-                     HandleClientAsync(client); 
+                    HandleClientAsync(client);
                 }
                 catch (Exception ex)
                 {
@@ -108,6 +115,7 @@ namespace Server
 
         private async void HandleClientAsync(TcpClient client)
         {
+            Player player = null; // Lưu trữ tham chiếu đến người chơi để có thể dễ dàng xóa khi cần thiết
             try
             {
                 NetworkStream stream = client.GetStream();
@@ -118,8 +126,8 @@ namespace Server
                 {
                     string request = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     AppendLog($"Request received: {request}");
-                    string response = ProcessRequest(request, client);
-                    if(response == null)
+                    string response = ProcessRequest(request, client, ref player); // Chuyển player như một tham chiếu để có thể gán khi người chơi đăng nhập hoặc vào phòng
+                    if (response == null)
                     {
                         continue;
                     }
@@ -135,11 +143,35 @@ namespace Server
             {
                 client.Close();
                 AppendLog("Client connection closed.");
+                if (player != null)
+                {
+                    RemovePlayerFromRoom(player);
+                }
+            }
+        }
+
+        private void RemovePlayerFromRoom(Player player)
+        {
+            foreach (var room in rooms)
+            {
+                if (room.Value.Contains(player))
+                {
+                    room.Value.Remove(player);
+                    if (room.Value.Count == 0)
+                    {
+                        rooms.Remove(room.Key);
+                        roomGameStatus[room.Key] = false;
+                        res.Remove(room.Key);
+                        Wordstring.Remove(room.Key);
+                        AppendLog($"Room {room.Key} closed due to no players.");
+                    }
+                    break;
+                }
             }
         }
 
 
-        private string ProcessRequest(string request, TcpClient client)
+        private string ProcessRequest(string request, TcpClient client, ref Player player)
         {
             string[] parts = request.Split(' ');
             string command = parts[0];
@@ -167,7 +199,7 @@ namespace Server
             {
                 string id = parts[1];
                 string playerName = parts[3];
-                return JoinRoom(id, playerName, client);
+                return JoinRoom(id, playerName, client, ref player);
             }
             else if (command == "check")
             {
@@ -178,7 +210,7 @@ namespace Server
                 string roomid = parts[2];
                 string playername = parts[3];
                 string attemp = parts[4];
-                Player player = rooms[Int32.Parse(roomid)].FirstOrDefault(p => p.Name == playername);
+                player = rooms[Int32.Parse(roomid)].FirstOrDefault(p => p.Name == playername);
                 string point = player.currentWord.ToString();
                 string message = CheckAnswer(guessedWord, roomid, playername, point, attemp);
                 if (attemp == "5" || message.Split(" ")[1] == "22222")
@@ -219,14 +251,14 @@ namespace Server
                 return HandleLeave(roomId, playerName);
 
             }
-            else if (request.StartsWith ("Send"))
+            else if (request.StartsWith("Send"))
             {
                 string[] token = request.Split("/");
-                string message = "Chat" + "/"+ token[1] + "/" +  token[3];
-              
+                string message = "Chat" + "/" + token[1] + "/" + token[3];
+
                 int roomid = Int32.Parse(token[2]);
-                
-                SendMessageToRoom(roomid,message);
+
+                SendMessageToRoom(roomid, message);
                 return null;
 
             }
@@ -265,29 +297,29 @@ namespace Server
 
         private bool LoginUser(string username, string password)
         {
-                string query = "SELECT COUNT(*) FROM Users WHERE Username = @Username AND PasswordHash = @PasswordHash";
+            string query = "SELECT COUNT(*) FROM Users WHERE Username = @Username AND PasswordHash = @PasswordHash";
 
-                using (var connection = new MySqlConnection(connectionString))
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                try
                 {
-                    try
+                    connection.Open();
+                    using (var command = new MySqlCommand(query, connection))
                     {
-                        connection.Open();
-                        using (var command = new MySqlCommand(query, connection))
-                        {
-                            command.Parameters.AddWithValue("@Username", username);
-                            command.Parameters.AddWithValue("@PasswordHash", password);
+                        command.Parameters.AddWithValue("@Username", username);
+                        command.Parameters.AddWithValue("@PasswordHash", password);
 
-                            int count = Convert.ToInt32(command.ExecuteScalar());
-                            return count > 0;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        AppendLog($"Database error: {ex.Message}");
-                        return false;
+                        int count = Convert.ToInt32(command.ExecuteScalar());
+                        return count > 0;
                     }
                 }
-            
+                catch (Exception ex)
+                {
+                    AppendLog($"Database error: {ex.Message}");
+                    return false;
+                }
+            }
+
         }
 
         private string CheckAnswer(string guessedWord, string roomid, string playername, string point, string attempt)
@@ -296,33 +328,33 @@ namespace Server
 
             string[] wordinroom = Wordstring[Int32.Parse(roomid)].Split("\n");
 
-            
-             correctcheck = wordinroom[points].ToUpper(); 
-            string answerCode = ""; 
-            bool[] targetUsed = new bool[correctcheck.Length]; 
+
+            correctcheck = wordinroom[points].ToUpper();
+            string answerCode = "";
+            bool[] targetUsed = new bool[correctcheck.Length];
             for (int i = 0; i < 5; i++)
             {
                 if (guessedWord[i] == correctcheck[i])
                 {
-                    answerCode += '2'; 
-                    targetUsed[i] = true;  
+                    answerCode += '2';
+                    targetUsed[i] = true;
                 }
                 else
                 {
-                    answerCode += '-';  
+                    answerCode += '-';
                 }
             }
 
             for (int i = 0; i < 5; i++)
             {
-                if (answerCode[i] == '-') 
+                if (answerCode[i] == '-')
                 {
                     for (int j = 0; j < 5; j++)
                     {
                         if (!targetUsed[j] && guessedWord[i] == correctcheck[j])
                         {
-                            answerCode = answerCode.Substring(0, i) + '1' + answerCode.Substring(i + 1);  
-                            targetUsed[j] = true;  
+                            answerCode = answerCode.Substring(0, i) + '1' + answerCode.Substring(i + 1);
+                            targetUsed[j] = true;
                             break;
                         }
                     }
@@ -353,40 +385,27 @@ namespace Server
             }
             return tmp;
         }
-        private string JoinRoom(string id, string playerName, TcpClient client)
+        private string JoinRoom(string id, string playerName, TcpClient client, ref Player player)
         {
             int roomId = int.Parse(id);
-           
             lock (roomsLock)
             {
-                if (roomGameStatus.ContainsKey(roomId) && roomGameStatus[roomId] == true)
-                {
-                    string mes ="";
-                    foreach (var i in rooms[roomId])
-                    {
-                        mes += i.Name + " ";
 
-                    }
-                    return "roomplaying" + " " + mes;
-
-                }
-                if (rooms.ContainsKey(roomId))
+                if (!rooms.ContainsKey(roomId) || !roomGameStatus[roomId])
                 {
-                    if (rooms[roomId].Any(p => p.Name == playerName))
-                    {
-                        return "Player with the same name already exists in the room.";
-                    }
-                }
-
-                if (!rooms.ContainsKey(roomId))
-                {
+                    // Tạo phòng mới nếu phòng cũ đã đóng hoặc không tồn tại
                     rooms[roomId] = new List<Player>();
+                    roomGameStatus[roomId] = true;
+                    Wordstring[roomId] = ChoseNWord();
                 }
-
-                if (rooms[roomId].Count < 4)  
+                if (rooms[roomId].Any(p => p.Name == playerName))
                 {
-                    rooms[roomId].Add(new Player(playerName, client)); 
-
+                    return "Player with the same name already exists in the room.";
+                }
+                if (rooms[roomId].Count < 4)
+                {
+                    player = new Player(playerName, client);
+                    rooms[roomId].Add(player);
                     string playersInRoom = string.Join(",", rooms[roomId].Select(p => p.Name));
                     SendMessageToRoom(roomId, $"joinsuccess {playersInRoom} {roomId}");
                     return null;
@@ -397,6 +416,7 @@ namespace Server
                 }
             }
         }
+
         private void ProcessReadyCommand(string RoomId, string playerName)
         {
             int roomId = int.Parse(RoomId);
@@ -415,10 +435,13 @@ namespace Server
                     {
                         string tmp = ChoseNWord();
                         AppendLog(tmp);
-                        Wordstring[roomId] = tmp ;
+                        Wordstring[roomId] = tmp;
+                        roomKeywords[roomId] = tmp;  // Lưu từ khóa cho phòng
                         roomGameStatus[roomId] = true;
                         SendMessageToRoom(roomId, "GameStarting");
-                   }
+
+                        UpdateKeywordDisplay();  // Cập nhật hiển thị từ khóa trên giao diện server
+                    }
                     else
                     {
                         // Nếu còn người chưa sẵn sàng, gửi tin nhắn cho phòng
@@ -435,6 +458,25 @@ namespace Server
                 return;
             }
         }
+
+
+        private void UpdateKeywordDisplay()
+        {
+            var keywordDisplay = new StringBuilder();
+            foreach (var room in roomKeywords)
+            {
+                keywordDisplay.AppendLine($"Room {room.Key}:");
+                var words = room.Value.Split('\n');
+                foreach (var word in words)
+                {
+                    keywordDisplay.AppendLine($"\t{word.Trim()}");
+                }
+            }
+            AppendLog("Current keywords for each room:");
+            AppendLog(keywordDisplay.ToString());
+        }
+
+
         private string HandleLeave(int roomid, string name)
         {
             if (rooms.ContainsKey(roomid))
@@ -443,30 +485,30 @@ namespace Server
                 if (player != null)
                 {
                     rooms[roomid].Remove(player);
-                    
+                    SendMessageToRoom(roomid, "leave" + " " + name);
                     if (rooms[roomid].Count == 0)
                     {
                         rooms.Remove(roomid);
                         roomGameStatus.Remove(roomid);
                         res.Remove(roomid);
                         Wordstring.Remove(roomid);
+                        AppendLog($"Room {roomid} has been closed due to no remaining players.");
                     }
-                    SendMessageToRoom(roomid, "leave" + " " + name);
-                    return "leaveSuccess" ;
+                    return "leaveSuccess";
                 }
                 else
                 {
                     return "leaveFailed";
                 }
-
             }
             else
             {
                 return "leaveFailed";
             }
-
         }
-        private string HandleEndGame ( string playerName, string playerPoints, string roomid)
+
+
+        private string HandleEndGame(string playerName, string playerPoints, string roomid)
         {
             if (Int32.TryParse(roomid, out int roomId))
             {
@@ -486,23 +528,23 @@ namespace Server
                                 foreach (KeyValuePair<string, int> item in res[roomId])
                                 {
                                     result += "Player:" + item.Key + "Point:" + item.Value + "-";
-                                   
+
                                 }
-                               SendMessageToRoom(roomId, "EndGame" + " " + result);
+                                SendMessageToRoom(roomId, "EndGame" + " " + result);
                                 rooms[roomId].Clear();
                                 res[roomId].Clear();
-                                
+
                                 roomGameStatus[roomId] = false;
                                 player.Name = null;
                                 player.Client = null;
                                 player.IsReady = false;
                                 return null;
-                              
-                               
+
+
                             }
                             else
                             {
-                               
+
                                 return "EndGamePlayer" + " " + playerName + " " + playerPoints + " " + roomid;
                             }
 
@@ -518,7 +560,7 @@ namespace Server
                     {
                         // Nếu roomId không tồn tại trong rooms
                         AppendLog($"Room ID {roomId} not found");
-                        return null; 
+                        return null;
                     }
                 }
             }
@@ -585,13 +627,13 @@ namespace Server
         private void Form1_Load(object sender, EventArgs e)
         {
             TestDatabaseConnection();
-            for(int i  = 1; i <= 10; i++)
+            for (int i = 1; i <= 10; i++)
             {
                 rooms.Remove(i);
                 roomGameStatus.Remove(i);
 
             }
-            
+
         }
     }
     public class Player
@@ -607,7 +649,7 @@ namespace Server
             Client = client;
             IsReady = false;
             currentWord = 0;
-            
+
         }
     }
 }

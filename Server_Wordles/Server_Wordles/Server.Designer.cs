@@ -1,6 +1,6 @@
-﻿namespace Server
+﻿namespace Server_Wordles
 {
-    partial class Form1
+    partial class Server
     {
         /// <summary>
         ///  Required designer variable.

@@ -57,16 +57,16 @@ namespace Client
         }
 
         // Handle incoming messages
+        private bool continueListening = true; // Cờ để kiểm soát luồng nghe
+
         private void ReceiveMessages()
         {
             byte[] buffer = new byte[1024 * 10];
 
-            while (true)
+            while (continueListening && clientSocket.Connected)
             {
                 try
                 {
-                    if (!clientSocket.Connected) break;
-
                     int bytesReceived = clientSocket.Receive(buffer);
                     if (bytesReceived > 0)
                     {
@@ -75,7 +75,7 @@ namespace Client
                         {
                             Invoke(new Action(() => ProcessServerMessage(message)));
                         }
-                        else
+                        else if (!this.IsDisposed)
                         {
                             ProcessServerMessage(message);
                         }
@@ -83,18 +83,20 @@ namespace Client
                 }
                 catch (SocketException ex)
                 {
-                    MessageBox.Show($"Ban da dang xuat");
-
-                    break;
+                    if (!continueListening) return; // Ngừng xử lý khi form đã đóng
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Ngừng luồng nếu form đã bị dispose
+                    return;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Unexpected error: {ex.Message}");
-                    break;
+                    if (!continueListening) return;
                 }
             }
-
         }
+
 
         // Process incoming server messages
         private void ProcessServerMessage(string message)
@@ -133,15 +135,16 @@ namespace Client
             }
             else if (token[0] == "leaveSuccess")
             {
-                MessageBox.Show("ban da roi phong");
+                MessageBox.Show("Bạn đã rời phòng!");
                 listBox3.Items.Clear();
                 groupBox1.Visible = true;
                 button2.Enabled = true;
                 label3.Text = "";
+                ResetAll();
             }
             else if (token[0] == "leave")
             {
-                listBox3.Items.Add(token[1] + " da roi phong");
+                listBox3.Items.Add(token[1] + " đã rời phòng!");
                 label3.Text = "";
             }
             else if (token[0] == "GameStarting")
@@ -162,7 +165,7 @@ namespace Client
             }
             else if (token[0] == "roomplaying")
             {
-                MessageBox.Show("phong dang choi vui long chon phong moi ");
+                MessageBox.Show("Phòng đang chơi vui lòng chọn phòng mới!");
                 listBox3.Items.Clear();
                 groupBox1.Visible = true;
             }
@@ -200,7 +203,7 @@ namespace Client
             else if (token[0] == "EndGamePlayer")
             {
 
-                MessageBox.Show("ban da hoan thanh vui long doi");
+                MessageBox.Show("Bạn đã hoàn thành, vui lòng đợi người chơi khác!");
 
 
             }
@@ -448,12 +451,32 @@ namespace Client
 
         private void GameForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            continueListening = false;
             timer1.Stop();
-            if (clientSocket != null && clientSocket.Connected)
+            if (clientSocket != null)
             {
-                clientSocket.Close();
+                if (clientSocket.Connected)
+                {
+                    try
+                    {
+                        clientSocket.Shutdown(SocketShutdown.Both);
+                    }
+                    catch (SocketException ex)
+                    {
+                        //Temporary not get
+                    }
+                    clientSocket.Close();
+                }
+                clientSocket = null;
             }
+            if (listenerThread != null && listenerThread.IsAlive)
+            {
+                listenerThread.Join();
+            }
+            Environment.Exit(0);
         }
+
+
 
         private void GameForm_Load(object sender, EventArgs e)
         {
@@ -536,9 +559,17 @@ namespace Client
 
         private void button3_Click(object sender, EventArgs e)
         {
-            string message = "leave" + " " + comboBox1.SelectedItem.ToString() + " " + name;
-            Send(message);
+            if (comboBox1.SelectedItem == null || string.IsNullOrEmpty(comboBox1.SelectedItem.ToString()))
+            {
+                MessageBox.Show("Bạn chưa ở trong phòng nào để thoát.");
+            }
+            else
+            {
+                string message = "leave " + comboBox1.SelectedItem.ToString() + " " + name;
+                Send(message);
+            }
         }
+
         private void button4_Click(object sender, EventArgs e)
         {
             string message =  "Send" + "/" + textBox7.Text + "/" + comboBox1.SelectedItem.ToString() + "/" +  name ;

@@ -1,6 +1,6 @@
 ﻿namespace Client
 {
-    partial class Form1
+    partial class Login
     {
         /// <summary>
         ///  Required designer variable.
@@ -39,7 +39,7 @@
             // textBox1
             // 
             textBox1.Anchor = AnchorStyles.None;
-            textBox1.Location = new Point(251, 179);
+            textBox1.Location = new Point(322, 185);
             textBox1.Margin = new Padding(3, 4, 3, 4);
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(114, 27);
@@ -47,7 +47,7 @@
             // 
             // textBox2
             // 
-            textBox2.Location = new Point(251, 287);
+            textBox2.Location = new Point(322, 293);
             textBox2.Margin = new Padding(3, 4, 3, 4);
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(114, 27);
@@ -56,7 +56,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(93, 184);
+            label1.Location = new Point(164, 190);
             label1.Name = "label1";
             label1.Size = new Size(107, 20);
             label1.TabIndex = 6;
@@ -65,7 +65,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(93, 297);
+            label2.Location = new Point(164, 303);
             label2.Name = "label2";
             label2.Size = new Size(72, 20);
             label2.TabIndex = 7;
@@ -74,7 +74,7 @@
             // linkLabel2
             // 
             linkLabel2.AutoSize = true;
-            linkLabel2.Location = new Point(447, 376);
+            linkLabel2.Location = new Point(518, 382);
             linkLabel2.Name = "linkLabel2";
             linkLabel2.Size = new Size(64, 20);
             linkLabel2.TabIndex = 9;
@@ -84,7 +84,7 @@
             // 
             // button1
             // 
-            button1.Location = new Point(251, 371);
+            button1.Location = new Point(322, 377);
             button1.Margin = new Padding(3, 4, 3, 4);
             button1.Name = "button1";
             button1.Size = new Size(114, 31);
@@ -93,7 +93,7 @@
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
-            // Form1
+            // Login
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -105,7 +105,7 @@
             Controls.Add(textBox2);
             Controls.Add(textBox1);
             Margin = new Padding(3, 4, 3, 4);
-            Name = "Form1";
+            Name = "Login";
             Text = "Form1";
             Load += Form1_Load;
             ResumeLayout(false);

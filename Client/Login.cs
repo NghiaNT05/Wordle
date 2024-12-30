@@ -8,13 +8,13 @@ using System.Threading;
 namespace Client
 
 {
-    public partial class Form1 : Form
+    public partial class Login : Form
     {
         private Socket clientSocket = null!;
         private Thread listenerThread = null!;
         private Register registerForm = null!;
 
-        public Form1()
+        public Login()
         {
             InitializeComponent();
 
@@ -108,26 +108,35 @@ namespace Client
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (clientSocket == null || !clientSocket.Connected)
-            {
-                MessageBox.Show("Lỗi khi kết nối tới server. Vui lòng khởi động lại.");
-                return;
-            }
-
             if (string.IsNullOrEmpty(textBox1.Text) || string.IsNullOrEmpty(textBox2.Text))
             {
                 MessageBox.Show("Vui lòng nhập đầy đủ thông tin đăng nhập.");
                 return;
             }
 
-            string username = textBox1.Text;
-            string password = HashPassword(textBox2.Text);
+            // Thử kết nối khi người dùng cố gắng đăng nhập
+            try
+            {
+                if (clientSocket == null || !clientSocket.Connected)
+                {
+                    clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    clientSocket.Connect(IPAddress.Parse("127.0.0.1"), 8888);
+                    listenerThread = new Thread(ReceiveMessages);
+                    listenerThread.IsBackground = true;
+                    listenerThread.Start();
+                }
 
-            // Gửi yêu cầu đăng nhập tới server
-            string message = $"login {username} {password}";
-            Send(message);
-
+                string username = textBox1.Text;
+                string password = HashPassword(textBox2.Text);
+                string message = $"login {username} {password}";
+                Send(message);
+            }
+            catch (SocketException)
+            {
+                MessageBox.Show("Server chưa mở, vui lòng kiểm tra lại.");
+            }
         }
+
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -155,14 +164,14 @@ namespace Client
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            try
+            /*try
             {
                 conection();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Không thể kết nối đến server: {ex.Message}");
-            }
+            }*/
 
         }
     }
